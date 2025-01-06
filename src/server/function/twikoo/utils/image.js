@@ -1,6 +1,7 @@
 const fs = require('fs')
 const os = require('os')
 const path = require('path')
+const { isUrl } = require('.')
 const { RES_CODE } = require('./constants')
 const { getAxios, getFormData } = require('./lib')
 const axios = getAxios()
@@ -79,19 +80,11 @@ const fn = {
   },
   async uploadImageToPicList ({ photo, fileName, config, res, imageCdn }) {
     // PicList https://piclist.cn/ 高效的云存储和图床平台管理工具
-<<<<<<< HEAD
-    // 鉴权使用query参数key
-    const formData = new FormData()
-    formData.append('file', fn.base64UrlToReadStream(photo, fileName))
-    let url = `${imageCdn}/upload`
-    // 如果填写了key则拼接url
-=======
     // 鉴权使用 query 参数 key
     const formData = new FormData()
     formData.append('file', fn.base64UrlToReadStream(photo, fileName))
     let url = `${imageCdn}/upload`
     // 如果填写了 key 则拼接 url
->>>>>>> a076c93e6c4949f626e799310788872910bb2b81
     if (config.IMAGE_CDN_TOKEN) {
       url += `?key=${config.IMAGE_CDN_TOKEN}`
     }
