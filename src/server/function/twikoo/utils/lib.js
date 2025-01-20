@@ -41,6 +41,10 @@ module.exports = {
     const ipToRegion = require('@imaegoo/node-ip2region') // IP 属地查询
     return ipToRegion
   },
+  getGeoLite2 () {
+    const geoLite2 = require('@duzhuoshanwai/geolite2-3in1')
+    return geoLite2
+  },
   getMarked () {
     const marked = require('marked') // Markdown 解析
     return marked

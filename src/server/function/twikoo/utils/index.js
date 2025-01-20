@@ -4,6 +4,7 @@ const {
   getFormData,
   getBowser,
   getIpToRegion,
+  getGeoLite2,
   getMd5,
   getSha256
 } = require('./lib')
@@ -16,6 +17,7 @@ const { RES_CODE } = require('./constants')
 const logger = require('./logger')
 
 let ipRegionSearcher
+let geo = null
 
 // IP 属地查询
 function getIpRegionSearcher () {
@@ -24,6 +26,15 @@ function getIpRegionSearcher () {
     ipRegionSearcher = ipToRegion.create() // 初始化 IP 属地
   }
   return ipRegionSearcher
+}
+
+async function getGeoLite2Reader () {
+  if (!geo) {
+    const GeoLite2 = getGeoLite2()
+    geo = new GeoLite2()
+    await geo.initReader()
+  }
+  return geo
 }
 
 const fn = {
@@ -85,6 +96,7 @@ const fn = {
       os: displayOs,
       browser: displayBrowser,
       ipRegion: showRegion ? fn.getIpRegion({ ip: comment.ip }) : '',
+      ipInfo: showRegion? fn.getIpInfo({ ip: comment.ip }) : '',
       master: comment.master,
       like: comment.like ? comment.like.length : 0,
       liked: comment.like ? comment.like.findIndex((item) => item === uid) > -1 : false,
@@ -173,9 +185,22 @@ const fn = {
       return ''
     }
   },
+  async getIpInfo({ ip, detail = false }) {
+    if (!ip) return '';
+    try {
+      const geo = await getGeoLite2Reader(); // 确保 geo 已初始化
+      const ipInfo = await geo.getGeoInfo(ip); // 调用 getGeoInfo
+      logger.info(ipInfo);
+      return ipInfo;
+    } catch (error) {
+      logger.warn('getIpInfo() 出错啦', error.message);
+      return null;
+    }
+  },
   parseCommentForAdmin (comments) {
     for (const comment of comments) {
       comment.ipRegion = fn.getIpRegion({ ip: comment.ip, detail: true })
+      fn.getIpInfo({ ip: comment.ip, detail: true })
     }
     return comments
   },
